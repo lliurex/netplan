@@ -1,10 +1,18 @@
 From: Mathieu Trudel-Lapierre <mathieu.trudel-lapierre@canonical.com>
-Subject: Revise expected values for some tests affected by GLib HashTable weird
+Date: Fri, 2 Aug 2019 13:38:24 +0200
+Subject: Revise expected values for some tests affected by GLib HashTable
+ weird
 
-Index: netplan.io/tests/generator/test_bridges.py
-===================================================================
---- netplan.io.orig/tests/generator/test_bridges.py
-+++ netplan.io/tests/generator/test_bridges.py
+---
+ tests/generator/test_bridges.py | 2 +-
+ tests/generator/test_common.py  | 2 +-
+ tests/generator/test_vlans.py   | 6 +++---
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/tests/generator/test_bridges.py b/tests/generator/test_bridges.py
+index 4344d37..01340e3 100644
+--- a/tests/generator/test_bridges.py
++++ b/tests/generator/test_bridges.py
 @@ -215,7 +215,7 @@ UseMTU=true
        dhcp4: yes''')
          self.assert_nm(None, '''[keyfile]
@@ -14,11 +22,11 @@ Index: netplan.io/tests/generator/test_bridges.py
  
      def test_bridge_components(self):
          self.generate('''network:
-Index: netplan.io/tests/generator/test_common.py
-===================================================================
---- netplan.io.orig/tests/generator/test_common.py
-+++ netplan.io/tests/generator/test_common.py
-@@ -1104,7 +1104,7 @@ unmanaged-devices+=interface-name:engree
+diff --git a/tests/generator/test_common.py b/tests/generator/test_common.py
+index e1f603f..32bc37c 100644
+--- a/tests/generator/test_common.py
++++ b/tests/generator/test_common.py
+@@ -1105,7 +1105,7 @@ unmanaged-devices+=interface-name:engreen,''')
          if "CODECOV_TOKEN" not in os.environ:  # pragma: nocover
              self.assert_nm(None, '''[keyfile]
  # devices managed by networkd
@@ -27,10 +35,10 @@ Index: netplan.io/tests/generator/test_common.py
          self.assert_nm_udev(None)
  
      def test_change_def(self):
-Index: netplan.io/tests/generator/test_vlans.py
-===================================================================
---- netplan.io.orig/tests/generator/test_vlans.py
-+++ netplan.io/tests/generator/test_vlans.py
+diff --git a/tests/generator/test_vlans.py b/tests/generator/test_vlans.py
+index d93e230..22006ee 100644
+--- a/tests/generator/test_vlans.py
++++ b/tests/generator/test_vlans.py
 @@ -48,9 +48,9 @@ Name=en1
  
  [Network]

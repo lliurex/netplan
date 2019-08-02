@@ -1,2 +1,3 @@
 glib_changes.patch
 disable-networkd-tunnels-ipip-gre.patch
+0003-add-use-search-option.patch

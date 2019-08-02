@@ -1,15 +1,19 @@
 From: Mathieu Trudel-Lapierre <mathieu.trudel-lapierre@canonical.com>
+Date: Fri, 2 Aug 2019 13:38:24 +0200
 Subject: Disable tests that are broken in the current kernel on bionic.
 
 These fail because the device isn't being brought up by networkd or the kernel
 and it seems to be squarely the kernel's job: upgrading systemd to the cosmic
 version on a bionic system yields no better results, but upgrading the kernel
 does allow these tests to pass.
+---
+ tests/integration/tunnels.py | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Index: netplan.io/tests/integration/tunnels.py
-===================================================================
---- netplan.io.orig/tests/integration/tunnels.py
-+++ netplan.io/tests/integration/tunnels.py
+diff --git a/tests/integration/tunnels.py b/tests/integration/tunnels.py
+index 9991a90..9d9dd72 100644
+--- a/tests/integration/tunnels.py
++++ b/tests/integration/tunnels.py
 @@ -49,6 +49,7 @@ class _CommonTests():
          self.generate_and_settle()
          self.assert_iface('sit-tun0', ['sit-tun0@NONE', 'link.* 192.168.5.1 peer 99.99.99.99'])

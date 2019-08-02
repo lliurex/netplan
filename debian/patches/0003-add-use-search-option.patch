@@ -1,0 +1,103 @@
+From: Raul Rodrigo <raurodse@gmail.com>
+Date: Fri, 2 Aug 2019 13:44:34 +0200
+Subject: add use-search option
+
+---
+ doc/netplan.md                         | 10 ++++++++++
+ src/networkd.c                         |  6 ++++++
+ src/parse.c                            |  2 ++
+ src/parse.h                            |  1 +
+ tests/generator/test_dhcp_overrides.py |  3 +++
+ 5 files changed, 22 insertions(+)
+
+diff --git a/doc/netplan.md b/doc/netplan.md
+index 195fd8e..a9222f5 100644
+--- a/doc/netplan.md
++++ b/doc/netplan.md
+@@ -388,6 +388,16 @@ client processes as specified in the netplan YAML.
+           on a preferred interface. Available for both the ``networkd`` and
+           ``NetworkManager`` backends.
+ 
++     ``use-domains`` (scalar)
++     :    Takes a boolean, or the special value "route". When true, the domain 
++          name received from the DHCP server will be used as DNS search domain
++          over this link, similar to the effect of the Domains= setting. If set
++          to "route", the domain name received from the DHCP server will be 
++          used for routing DNS queries only, but not for searching, similar to
++          the effect of the Domains= setting when the argument is prefixed with
++          "~".
++
++
+ 
+ ## Routing
+ Complex routing is possible with netplan. Standard static routes as well
+diff --git a/src/networkd.c b/src/networkd.c
+index 909e580..1525786 100644
+--- a/src/networkd.c
++++ b/src/networkd.c
+@@ -385,6 +385,10 @@ combine_dhcp_overrides(net_definition* def, dhcp_overrides* combined_dhcp_overri
+             g_fprintf(stderr, DHCP_OVERRIDES_ERROR, def->id, "use-dns");
+             exit(1);
+         }
++       if (g_strcmp0(def->dhcp4_overrides.use_domains, def->dhcp6_overrides.use_domains) != 0){
++            g_fprintf(stderr, DHCP_OVERRIDES_ERROR, def->id, "use-domains");
++            exit(1);
++        }
+         if (def->dhcp4_overrides.use_ntp != def->dhcp6_overrides.use_ntp) {
+             g_fprintf(stderr, DHCP_OVERRIDES_ERROR, def->id, "use-ntp");
+             exit(1);
+@@ -568,6 +572,8 @@ write_network_file(net_definition* def, const char* rootdir, const char* path)
+         /* Only write DHCP options that differ from the networkd default. */
+         if (!combined_dhcp_overrides.use_routes)
+             g_string_append_printf(network, "UseRoutes=false\n");
++        if (combined_dhcp_overrides.use_domains)
++            g_string_append_printf(network, "UseDomains=%s\n", combined_dhcp_overrides.use_domains);
+         if (!combined_dhcp_overrides.use_dns)
+             g_string_append_printf(network, "UseDNS=false\n");
+         if (!combined_dhcp_overrides.use_ntp)
+diff --git a/src/parse.c b/src/parse.c
+index 331bb36..94c66ee 100644
+--- a/src/parse.c
++++ b/src/parse.c
+@@ -1510,6 +1510,7 @@ const mapping_entry_handler nameservers_handlers[] = {
+     {"route-metric", YAML_SCALAR_NODE, handle_netdef_guint, NULL, netdef_offset(overrides.metric)},         \
+     {"send-hostname", YAML_SCALAR_NODE, handle_netdef_bool, NULL, netdef_offset(overrides.send_hostname)},  \
+     {"use-dns", YAML_SCALAR_NODE, handle_netdef_bool, NULL, netdef_offset(overrides.use_dns)},              \
++    {"use-domains", YAML_SCALAR_NODE, handle_netdef_str, NULL, netdef_offset(overrides.use_domains)},      \
+     {"use-hostname", YAML_SCALAR_NODE, handle_netdef_bool, NULL, netdef_offset(overrides.use_hostname)},    \
+     {"use-mtu", YAML_SCALAR_NODE, handle_netdef_bool, NULL, netdef_offset(overrides.use_mtu)},              \
+     {"use-ntp", YAML_SCALAR_NODE, handle_netdef_bool, NULL, netdef_offset(overrides.use_ntp)},              \
+@@ -1626,6 +1627,7 @@ static void
+ initialize_dhcp_overrides(dhcp_overrides* overrides)
+ {
+     overrides->use_dns = TRUE;
++    overrides->use_domains = NULL;
+     overrides->use_ntp = TRUE;
+     overrides->send_hostname = TRUE;
+     overrides->use_hostname = TRUE;
+diff --git a/src/parse.h b/src/parse.h
+index 8d097b0..9425ec9 100644
+--- a/src/parse.h
++++ b/src/parse.h
+@@ -162,6 +162,7 @@ typedef struct dhcp_overrides {
+     gboolean use_mtu;
+     gboolean use_routes;
+     char* hostname;
++    char* use_domains;
+     guint metric;
+ } dhcp_overrides;
+ 
+diff --git a/tests/generator/test_dhcp_overrides.py b/tests/generator/test_dhcp_overrides.py
+index 38ac876..fb7e19f 100644
+--- a/tests/generator/test_dhcp_overrides.py
++++ b/tests/generator/test_dhcp_overrides.py
+@@ -346,6 +346,9 @@ UseMTU=true
+     def test_dhcp_overrides_use_dns(self):
+         self.assert_dhcp_overrides_bool('use-dns', 'UseDNS')
+ 
++    def test_dhcp_overrides_use_domains(self):
++        self.assert_dhcp_overrides_string('use-domains', 'UseDomains')
++
+     def test_dhcp_overrides_use_ntp(self):
+         self.assert_dhcp_overrides_bool('use-ntp', 'UseNTP')
+ 

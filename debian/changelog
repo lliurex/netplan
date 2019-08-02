@@ -1,3 +1,9 @@
+netplan.io (0.97-0ubuntu1~18.04.1+lliurex1) bionic; urgency=medium
+
+  * Add patch to support use-domains
+
+ -- Raul Rodrigo Segura <raurodse@gmail.com>  Fri, 02 Aug 2019 13:44:58 +0200
+
 netplan.io (0.97-0ubuntu1~18.04.1) bionic; urgency=medium
 
   * Backport netplan.io 0.97 to 18.04. (LP: #1828299)
