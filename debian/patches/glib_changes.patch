@@ -1,0 +1,54 @@
+From: Mathieu Trudel-Lapierre <mathieu.trudel-lapierre@canonical.com>
+Subject: Revise expected values for some tests affected by GLib HashTable weird
+
+Index: netplan.io/tests/generator/test_bridges.py
+===================================================================
+--- netplan.io.orig/tests/generator/test_bridges.py
++++ netplan.io/tests/generator/test_bridges.py
+@@ -215,7 +215,7 @@ UseMTU=true
+       dhcp4: yes''')
+         self.assert_nm(None, '''[keyfile]
+ # devices managed by networkd
+-unmanaged-devices+=interface-name:mybr,interface-name:eth42,interface-name:eth43,''')
++unmanaged-devices+=interface-name:eth42,interface-name:eth43,interface-name:mybr,''')
+ 
+     def test_bridge_components(self):
+         self.generate('''network:
+Index: netplan.io/tests/generator/test_common.py
+===================================================================
+--- netplan.io.orig/tests/generator/test_common.py
++++ netplan.io/tests/generator/test_common.py
+@@ -1104,7 +1104,7 @@ unmanaged-devices+=interface-name:engree
+         if "CODECOV_TOKEN" not in os.environ:  # pragma: nocover
+             self.assert_nm(None, '''[keyfile]
+ # devices managed by networkd
+-unmanaged-devices+=interface-name:engreen,interface-name:enblue,''')
++unmanaged-devices+=interface-name:enblue,interface-name:engreen,''')
+         self.assert_nm_udev(None)
+ 
+     def test_change_def(self):
+Index: netplan.io/tests/generator/test_vlans.py
+===================================================================
+--- netplan.io.orig/tests/generator/test_vlans.py
++++ netplan.io/tests/generator/test_vlans.py
+@@ -48,9 +48,9 @@ Name=en1
+ 
+ [Network]
+ LinkLocalAddressing=ipv6
+-VLAN=enred
+-VLAN=enblue
+ VLAN=engreen
++VLAN=enblue
++VLAN=enred
+ ''',
+                               'enblue.netdev': '''[NetDev]
+ Name=enblue
+@@ -103,7 +103,7 @@ UseMTU=true
+ '''})
+         self.assert_nm(None, '''[keyfile]
+ # devices managed by networkd
+-unmanaged-devices+=interface-name:en1,interface-name:enred,interface-name:enblue,interface-name:engreen,''')
++unmanaged-devices+=interface-name:engreen,interface-name:en1,interface-name:enblue,interface-name:enred,''')
+         self.assert_nm_udev(None)
+ 
+ 
